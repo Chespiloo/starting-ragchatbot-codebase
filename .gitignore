@@ -26,6 +26,12 @@ uploads/
 *.swp
 *.swo
 
+# Claude Code
+.claude/
+
+# Playwright MCP
+.playwright-mcp/
+
 # OS
 .DS_Store
 Thumbs.db

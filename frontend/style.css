@@ -445,6 +445,35 @@ header h1 {
     margin: 0.5rem 0;
 }
 
+/* New Chat Button */
+.new-chat-button {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+    background: var(--background);
+    border: none;
+    cursor: pointer;
+    padding: 0.625rem 0.875rem;
+    width: auto;
+    text-align: left;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.new-chat-button:hover {
+    color: var(--primary-color);
+    background: var(--surface-hover);
+}
+
+.new-chat-button:focus {
+    outline: none;
+    color: var(--primary-color);
+}
+
 /* Sidebar Headers */
 .stats-header,
 .suggested-header {
