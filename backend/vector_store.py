@@ -99,6 +99,10 @@ class VectorStore:
         except Exception as e:
             return SearchResults.empty(f"Search error: {str(e)}")
     
+    # Maximum cosine distance to accept a course name match.
+    # ChromaDB returns L2/cosine distances; values > 1.5 are very dissimilar.
+    _COURSE_MATCH_THRESHOLD = 1.0
+
     def _resolve_course_name(self, course_name: str) -> Optional[str]:
         """Use vector search to find best matching course by name"""
         try:
@@ -106,13 +110,15 @@ class VectorStore:
                 query_texts=[course_name],
                 n_results=1
             )
-            
+
             if results['documents'][0] and results['metadatas'][0]:
-                # Return the title (which is now the ID)
+                distance = results['distances'][0][0]
+                if distance > self._COURSE_MATCH_THRESHOLD:
+                    return None  # No close-enough match found
                 return results['metadatas'][0][0]['title']
         except Exception as e:
             print(f"Error resolving course name: {e}")
-        
+
         return None
     
     def _build_filter(self, course_title: Optional[str], lesson_number: Optional[int]) -> Optional[Dict]:

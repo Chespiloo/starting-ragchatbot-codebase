@@ -83,8 +83,12 @@ Provide only the direct answer to what was asked.
         if response.stop_reason == "tool_use" and tool_manager:
             return self._handle_tool_execution(response, api_params, tool_manager)
         
-        # Return direct response
-        return response.content[0].text
+        # Return text from the first text block (guards against ToolUseBlock
+        # being content[0] if tool_manager was not provided)
+        for block in response.content:
+            if block.type == "text":
+                return block.text
+        return ""
     
     def _handle_tool_execution(self, initial_response, base_params: Dict[str, Any], tool_manager):
         """
@@ -100,9 +104,13 @@ Provide only the direct answer to what was asked.
         """
         # Start with existing messages
         messages = base_params["messages"].copy()
-        
-        # Add AI's tool use response
-        messages.append({"role": "assistant", "content": initial_response.content})
+
+        # Convert SDK content block objects to plain dicts before passing them
+        # back to the API.  ToolUseBlock / TextBlock are Pydantic models and are
+        # NOT JSON-serializable by default — omitting this conversion causes a
+        # TypeError inside httpx and a 500 error for every tool-use response.
+        serialized_content = [block.model_dump() for block in initial_response.content]
+        messages.append({"role": "assistant", "content": serialized_content})
         
         # Execute all tool calls and collect results
         tool_results = []
